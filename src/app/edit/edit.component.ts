@@ -34,14 +34,20 @@ export class EditComponent implements OnInit, OnDestroy {
     });
     // console.log(this.id);
     this.http.get('assets/employees.json')
-      .pipe(map(employee => {
-        this.emp = _.filter(employee, {id: this.id});
-        console.log(this.emp);
-      })).subscribe();
+      .pipe(map(employees => {
+        const a = _.find(employees, {id: this.id});
+        console.log(a);
+        return _.pick(a, ['id', 'firstName', 'lastName', 'positionType', 'startDate', 'userId', 'userEmail'])
+      })).subscribe(employee => {
+        this.emp = employee;
+        console.log(employee);
+      }
+
+    );
 
   }
   onSubmit(edited: NgForm){
-
+    console.log(edited.value)
   }
   onDelete(){
 

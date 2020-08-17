@@ -11,13 +11,24 @@
       />
     </mat-form-field>
     <mat-form-field appearance="fill" >
-      <mat-label for="name">Employee Name</mat-label>
+      <mat-label for="firstName">Employee Name</mat-label>
       <input
         type="text"
         matInput
         placeholder="Name"
-        [ngModel]=""
-        name="name"
+        [ngModel]="emp.firstName"
+        name="firstName"
+        required
+      />
+    </mat-form-field>
+    <mat-form-field appearance="fill" >
+      <mat-label for="lastName">Employee Name</mat-label>
+      <input
+        type="text"
+        matInput
+        placeholder="Name"
+        [ngModel]="emp.lastName"
+        name="lastName"
         required
       />
     </mat-form-field>
@@ -27,11 +38,25 @@
         type="email"
         matInput
         placeholder="Email Address"
-        [ngModel]=""
-        name="email"
+        [ngModel]="emp.userEmail"
+        name="userEmail"
         email
         required
       />
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+      <mat-label for="startDate">Start Date</mat-label>
+      <input
+        type="text"
+        matInput
+        [matDatepicker]="picker"
+        [ngModel]="emp.startDate"
+        name="startDate"
+        required
+      />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
     <br>
     <button
