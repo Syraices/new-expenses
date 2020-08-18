@@ -10,6 +10,8 @@ import {
 import {MatSelectChange} from '@angular/material/select';
 import * as _ from 'lodash';
 import {map, shareReplay} from 'rxjs/operators';
+import {DataControlService} from '../data-control.service';
+import {Subscription} from 'rxjs';
 
 interface EmpAccount {
   accountId: string;
@@ -43,46 +45,41 @@ export class ExpensesComponent implements OnInit {
   public dataSource: EmpAccount[] = [];
   public expandedAccount: EmpAccount | null;
   public filterApplied = false;
+  private subscription: Subscription;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient,
+              private dsService: DataControlService) {
   }
 
   ngOnInit(): void {
-    this.httpClient
-      .get<object[]>('assets/data.json')
-      .pipe(
-        map((account) => {
-          // const empList: EmpAccount[] = [];
-          return account.map((acc: EmpAccount) => {
-            return _.pick(acc, ['accountId', 'accountName', 'employeeId', 'employeeName', 'amount']);
-          });
-        }),
-        shareReplay()
-      )
-      .subscribe(account => {
-          _.forEach(account, (o) => {
 
-            o.amount = [o.amount];
-            o.employeeName = [o.employeeName];
-            o.employeeId = [o.employeeId];
+    this.subscription = this.dsService.getAccList()
+      .subscribe(account => {
+      _.forEach(account, (o) => {
+        o.amount = [o.amount];
+        o.employeeName = [o.employeeName];
+        o.employeeId = [o.employeeId];
+      });
+
+      const list = _.uniqBy(account, 'accountId');
+        console.log(list);
+      this.accountList = list.map(acc => {
+        const list3 = _.filter(account, {accountName: acc.accountName});
+        _.forEach(list3, (o, k) => {
+          _.mergeWith(list3[0], list3[k + 1], (ov, os) => {
+            if (_.isArray(ov)) {
+              return ov.concat(os);
+            }
           });
-          const list = _.uniqBy(account, 'accountId');
-          this.accountList = list.map(acc => {
-            const list3 = _.filter(account, {accountName: acc.accountName});
-            _.forEach(list3, (o, k) => {
-              _.mergeWith(list3[0], list3[k + 1], (ov, os) => {
-                if (_.isArray(ov)) {
-                  return ov.concat(os);
-                }
-              });
-            });
-            return acc;
-          });
-          this.dataSource = this.totals(this.accountList);
-          this.dataSource = this.accountList;
-        }
-      );
+        });
+        return acc;
+      });
+      this.dataSource = this.totals(this.accountList);
+      // this.dataSource = this.accountList;
+      // console.log(this.dataSource);
+    });
   }
+
   totals(list) {
     this.employees = [];
     list.map(acc => {
@@ -103,7 +100,7 @@ export class ExpensesComponent implements OnInit {
   applyFilter(input) {
     if (input.value === 'All') {
       this.filteredList = this.accountList;
-    }else {
+    } else {
       this.filteredList = this.accountList;
       const list = _.filter(this.filteredList, {employeeName: [input.value]});
       this.filteredList = list.map((acc, i) => {
@@ -122,5 +119,8 @@ export class ExpensesComponent implements OnInit {
     }
     this.dataSource = this.totals(this.filteredList);
 
+  }
+  getEmps(){
+    console.log(this.dsService.empList);
   }
 }

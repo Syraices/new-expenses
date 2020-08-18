@@ -5,6 +5,7 @@ import {ActivatedRoute, Params} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
 import * as _ from 'lodash';
+import {DataControlService} from '../data-control.service';
 
 interface Employee {
   id: string;
@@ -15,41 +16,46 @@ interface Employee {
   userId: string;
   userEmail: string;
 }
+
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
   styleUrls: ['./edit.component.css']
 })
 export class EditComponent implements OnInit, OnDestroy {
-  id: number;
+  id: string;
   subscription: Subscription;
   emp: Employee;
-
+  posTypes: string[];
   constructor(private http: HttpClient,
-              private route: ActivatedRoute) { }
+              private route: ActivatedRoute,
+              private dcService: DataControlService) {
+  }
 
   ngOnInit(): void {
     this.subscription = this.route.params.subscribe((params: Params) => {
       this.id = params.id;
     });
     // console.log(this.id);
-    this.http.get('assets/employees.json')
-      .pipe(map(employees => {
-        const a = _.find(employees, {id: this.id});
-        console.log(a);
-        return _.pick(a, ['id', 'firstName', 'lastName', 'positionType', 'startDate', 'userId', 'userEmail'])
-      })).subscribe(employee => {
+    this.dcService.getEmp(this.id)
+      .subscribe((employee: Employee) => {
         this.emp = employee;
-        console.log(employee);
+        // console.log(employee);
       }
-
     );
+    this.dcService.getPositions()
+      .subscribe(positions => {
+        this.posTypes = positions;
+      });
+  }
 
+  onSubmit(edited: NgForm) {
+    // console.log(edited.value);
+    this.dcService.editEmp(edited.value, this.id);
+    // console.log(this.dcService.empList);
   }
-  onSubmit(edited: NgForm){
-    console.log(edited.value)
-  }
-  onDelete(){
+
+  onDelete() {
 
   }
 

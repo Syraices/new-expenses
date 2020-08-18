@@ -5,7 +5,7 @@
       <input
         type="text"
         matInput
-        [ngModel]=""
+        [ngModel]="emp.id"
         name="id"
         required
       />
@@ -44,6 +44,14 @@
         required
       />
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label for="positionType">Position Type</mat-label>
+        <mat-select required [ngModel]="emp.positionType" name="positionType">
+          <mat-option *ngFor="let position of posTypes" [value]="position">
+            {{position}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
     <br>
     <mat-form-field appearance="fill">
       <mat-label for="startDate">Start Date</mat-label>
@@ -60,11 +68,13 @@
     </mat-form-field>
     <br>
     <button
-      mat-raised-button color primary
+      style="margin-left: 5px;"
+      mat-raised-button color="primary"
       type="submit"
       [disabled]="!edited.valid"
     >Submit
     </button>
-    <button mat-raised-button color alert (click)="onDelete()">Delete</button>
+    <button style="margin-left: 5px;" mat-raised-button color="warn" (click)="onDelete()">Delete</button>
+    <button style="margin-left: 5px;" mat-raised-button color="accent" routerLink="/">Back To Employees</button>
   </form>
 </section>
